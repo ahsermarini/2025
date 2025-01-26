@@ -1,7 +1,7 @@
 # First steps: 
 
 # Setting up the working directory 
-setwd("C:/Users/Serma/OneDrive/Desktop/Spatial/invasive_usa")
+setwd("C:/Users/serma/OneDrive - Alma Mater Studiorum Università di Bologna/Desktop/Invasive_USA")
 
 install.packages("terra")
 install.packages("tidyterra")
@@ -24,7 +24,7 @@ library(ggplot2)       # Data visualization with customizable plots
 library(maps)          # World map data for geographic visualization
 
 ## loading the dataset
-gbif_data <- read.csv("C:/Users/Serma/OneDrive/Desktop/Spatial/invasive_usa/invasive_usa.csv")
+gbif_data <- read.csv("C:/Users/Serma/OneDrive/Desktop/Spatial/invasive_usa/invasive_usa.csv") 
 
 # View the structure of the dataset
 str(gbif_data)
