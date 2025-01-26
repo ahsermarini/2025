@@ -1,0 +1,37 @@
+# Install all packages for the project needed
+
+install.packages("terra")
+install.packages("tidyterra")
+install.packages("dplyr")
+install.packages("geodata")
+install.packages("predicts")
+install.packages("raster")
+install.packages("ggplot2")
+install.packages("maps")
+
+# Accessing all required packages 
+
+library(terra)         # Tools for spatial data manipulation (raster/vector)
+library(tidyterra)     # Integrates 'terra' with 'tidyverse' for tidy data workflows
+library(dplyr)         # Tidyverse package for data manipulation
+library(geodata)       # Access and download geospatial/climate data
+library(predicts)      # Spatial predictive modeling, e.g., species distribution
+library(raster)        # Spatial raster data analysis and modeling
+library(ggplot2)       # Data visualization with customizable plots
+library(maps)          # World map data for geographic visualization
+
+# Setting up the working directory 
+setwd("C:/Users/serma/OneDrive - Alma Mater Studiorum Università di Bologna/Desktop/Invasive_USA")
+
+# loading the dataset
+gbif_data <- read.csv("C:/Users/serma/OneDrive - Alma Mater Studiorum Università di Bologna/Desktop/Invasive_USA/python_clean.csv")
+
+# View the structure of the dataset
+str(gbif_data)
+
+# view first few rows of the dataset
+head(gbif_data)
+
+# Filter data using scientific name
+species_name <- "Python bivittatus"
+species_data <- gbif_data %>% filter(species == species_name)
