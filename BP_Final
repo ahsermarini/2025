@@ -204,3 +204,46 @@ glm_predict1 <- predict(bioclim_data, glm_model1, type = "response")
 
 # Plot the prediction but limit the extent to mainland USA
 plot(glm_predict1,main = "Python Bivittatus Habitat Suitability Climate RCP 8.5", xlim = c(-97, - 73), ylim = c(24, 42))
+                                                                                            
+# Use testing data for model evaluation
+glm_eval1 <- pa_evaluate(p = testing1[testing1$pa1 == 1, ],
+                         a = testing1[testing1$pa1 == 0, ],
+                         model = glm_model1,
+                         type = "response")
+
+# Determining minimum threshold for "presence"
+glm_threshold1 <- glm_eval1@thresholds$max_spec_sens
+
+# --- ---Plotting Results ---
+
+# Define the extent (bounding box)
+usa_extent <- ext(-97, -73, 24, 42)
+
+# Crop the map
+usa_expand <- crop(x = world_map, y = usa_extent)
+
+# Plot the base map with gray continent fill and black borders
+plot(usa_expand, 
+     axes = TRUE, 
+     col = "gray95",         # Set the fill color to gray95
+     border = "black",       # Set the border color to black
+     xlim = c(-95, -78), ylim = c(24, 36),
+     main = "Occurrence of Python Bivittatus RCP 8.5")
+
+# Plot the areas where the probability of occurrence is greater than the threshold
+plot(glm_predict1 > glm_threshold1,
+     add = TRUE, 
+     legend = FALSE,
+     border = "black",
+     col = c("gray95", "olivedrab"),
+     xlim = c(-97, -73), ylim = c(24, 42))
+
+# And add those observations
+points(x = species_2_data$LONG, 
+       y = species_2_data$LAT, 
+       col = "black",
+       pch = "20", 
+       cex = .30)
+
+# Redraw the borders for visibility
+plot(usa_expand, add = TRUE, border = "black")
