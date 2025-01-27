@@ -214,3 +214,86 @@ points(x = species_1_data$LONG,
 
 # Redrawing country borders
 plot(my_map, add = TRUE, border = "grey5")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Zoom out by extending the boundaries of the extent
+zoomed_out_extent <- ext(c(-95.0, -75.0, 20.0, 40.0))
+
+# Crop both the present and future bioclimatic data to the zoomed-out extent
+bioclim_data <- crop(x = bioclim_data, y = zoomed_out_extent)
+
+# Make an extent that is 25% larger
+sample_extent <- geographic_extent * 1.25
+
+# Crop bioclim data to desired extent
+bioclim_data <- crop(x = bioclim_data, y = sample_extent)
+
+# Psudo-absence point
+# Setting the seed for the random-number generator to ensure results are similar
+set.seed(42)
+
+# Randomly sample points 
+background <- spatSample(x = bioclim_data,
+                         size = 10000,
+                         values = FALSE, # don't need values
+                         na.rm = TRUE,   # don't sample from ocean
+                         xy = TRUE)      # just need coordinates
+
+# Pulling out coordinate columns for longitude, then latitude
+presence1 <- filtered_data[, c("Longitude", "Latitude")]
+# Add column indicating presence
+presence1$pa1 <- 1
+
+# Convert background data to a data frame
+absence1 <- as.data.frame(background)
+# Update column names so they match presence points
+colnames(absence1) <- c("Longitude", "Latitude")
+# Add column indicating absence
+absence1$pa1 <- 0
+
+# Joining data into single data frame
+all_points1 <- rbind(presence1, absence1)
+
+# Extracting climate data for all those points
+bioclim_extract1 <- extract(x = bioclim_data,
+                            y = all_points1[, c("Longitude", "Latitude")],
+                            ID = FALSE) 
+
+# Adding the point and climate datasets together
+points_climate1 <- cbind(all_points1, bioclim_extract1)
+
+# Identifying columns that are latitude & longitude
+drop_cols1 <- which(colnames(points_climate1) %in% c("Longitude", "Latitude"))
+
+# Removing the geographic coordinates from the data frame
+points_climate1 <- points_climate1[, -drop_cols1]
+
+
+# Separating data into training and testing sets
+testing1 <- points_climate1[fold1 == 1, ]
+training1 <- points_climate1[fold1 != 1, ]
+
+# Model Builiding
+# Building a model using training data
+glm_model1 <- glm(pa1~., data = training1, family = binomial())
+
+# Getting predicted values from the model
+glm_predict1 <- predict(bioclim_data, glm_model1, type = "response")
+
+# Plot predicted values 
+plot(glm_predict1)
+
+
