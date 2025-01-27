@@ -101,18 +101,21 @@ points(x = filtered_data$Longitude,
        pch = 20, 
        cex = 0.80)
 
+# Make an extent that is 25% larger
+sample_extent <- geographic_extent * 1.25
+
 # Crop for Present BioClima map
-bioclim_present <- crop(x = bioclim_present, y = southeast_extent)
+bioclim_present <- crop(x = bioclim_data, y = southeast_extent)
 
 # Print predicted values 
-plot(glm_predict1, main = "Occurrence of Python Bivittatus Current Climate Prediciton")
+plot(bioclim_present[[1]], main = "Occurrence of Python Bivittatus Current Climate Prediciton")
 
-# --- Modeling RCP 8.5 for Python Biovittatus ---
+# --- Preparing for RCP 8.5 for Python Biovittatus Model ---
 
 # Setting the seed for the random-number generator to ensure results are similar
 set.seed(123)
 
-# Randomly sample points psudo-absence 
+# Randomly sample points for psudo-absence 
 background <- spatSample(x = bioclim_data,
                          size = 1000,
                          values = FALSE, # don't need values
@@ -143,6 +146,68 @@ points(x = filtered_data$Longitude,
        col = "olivedrab", 
        pch = 20, 
        cex = 0.80)
+
+# --- Creating Data Frame for Psudo-Absence and Occurrences Combo ---
+
+# Pulling out coordinate columns for LONG and LAT
+presence1 <- filtered_data[, c("Longitude", "Latitude")]
+
+# Add column indicating presence
+presence1$pa1 <- 1
+
+# Convert background data to a data frame
+absence1 <- as.data.frame(background)
+
+# Update column names so they match presence points
+colnames(absence1) <- c("Longitude", "Latitude")
+
+# Add column indicating absence
+absence1$pa1 <- 0
+
+# Joining data into single data frame
+all_points1 <- rbind(presence1, absence1)
+
+head(all_points1)
+
+# Extracting climate data for all those points
+bioclim_extract1 <- extract(x = bioclim_data,
+                            y = all_points1[, c("Longitude", "Latitude")],
+                            ID = FALSE) 
+
+# Adding the point and climate datasets together
+points_climate1 <- cbind(all_points1, bioclim_extract1)
+
+# Identifying columns that are latitude & longitude
+drop_cols1 <- which(colnames(points_climate1) %in% c("Longitude", "Latitude"))
+
+# Removing the geographic coordinates from the data frame
+points_climate1 <- points_climate1[, -drop_cols1]
+
+# --- Training & Testing Data Set for RCP 8.5 ---
+
+# Creating vector indicating fold to separate training and testing data
+fold1 <- folds(x = points_climate1,
+               k = 5,
+               by = points_climate1$pa1)
+
+# Separating data into training and testing sets
+testing1 <- points_climate1[fold1 == 1, ]
+training1 <- points_climate1[fold1 != 1, ]
+
+                             
+                             
+                             
+                             
+# --- Model Builiding for RCP 8.5 ---
+
+# Building a model using training data
+glm_model1 <- glm(pa1~., data = training1, family = binomial())
+
+# Getting predicted values from the model
+glm_predict1 <- predict(bioclim_data, glm_model1, type = "response")
+
+# Plot the prediction but limit the extent to mainland USA
+plot(glm_predict1,main = "Occurrence of Python Bivittatus Current Climate RCP 8.5", xlim = c(-95, -78), ylim = c(24, 36))  
 
 
 
