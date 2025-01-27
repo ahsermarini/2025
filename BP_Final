@@ -214,7 +214,7 @@ glm_eval1 <- pa_evaluate(p = testing1[testing1$pa1 == 1, ],
 # Determining minimum threshold for "presence"
 glm_threshold1 <- glm_eval1@thresholds$max_spec_sens
 
-# --- ---Plotting Results ---
+# ---Plotting Results ---
 
 # Define the extent (bounding box)
 usa_extent <- ext(-97, -73, 24, 42)
