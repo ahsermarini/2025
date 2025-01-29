@@ -108,7 +108,7 @@ sample_extent <- geographic_extent * 1.25
 bioclim_present <- crop(x = bioclim_data, y = southeast_extent)
 
 # Print predicted values 
-plot(bioclim_present[[1]], main = "Python Bivittatus Habitat Suitability Present Climate Prediciton")
+plot(bioclim_present[[1]], main = "Present Annual Mean Temperature")
 
 # --- Preparing for RCP 8.5 for Python Biovittatus Model ---
 
@@ -214,7 +214,7 @@ glm_eval1 <- pa_evaluate(p = testing1[testing1$pa1 == 1, ],
 # Determining minimum threshold for "presence"
 glm_threshold1 <- glm_eval1@thresholds$max_spec_sens
 
-# ---Plotting Results ---
+# --- Plotting Results ---
 
 # Define the extent (bounding box)
 usa_extent <- ext(-97, -73, 24, 42)
